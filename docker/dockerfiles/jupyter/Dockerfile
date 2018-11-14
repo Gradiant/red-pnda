@@ -56,5 +56,7 @@ RUN wget http://central.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2
 wget http://central.maven.org/maven2/org/apache/kafka/kafka-clients/1.0.0/kafka-clients-1.0.0.jar \
 -O /opt/spark/jars/kafka-clients-1.0.0.jar
 
+RUN mkdir -p /etc/jupyter/ && echo "c.NotebookApp.allow_remote_access = True" >> /etc/jupyter/jupyter_notebook_config.py
+
 ENTRYPOINT /entrypoint.sh
 

@@ -3,7 +3,6 @@ services:
   gobblin:
     container_name: gobblin
     hostname: gobblin
-    domainname: pnda
     image: pnda/gobblin:0.11.0-0.1.0
     build:
       context: ./dockerfiles/platform-gobblin-modules
@@ -18,7 +17,6 @@ services:
   spark-master:
     container_name: spark-master
     hostname: spark-master
-    domainname: pnda
     image: gradiant/spark:2.3.0
     command:
     - master
@@ -29,7 +27,6 @@ services:
   spark-worker:
     container_name: spark-worker
     hostname: spark-worker
-    domainname: pnda
     image: gradiant/spark:2.3.0
     command:
     - worker
@@ -37,14 +34,12 @@ services:
   flink-master:
     container_name: flink-master
     hostname: flink-master
-    domainname: pnda
     image: flink:1.6.0-hadoop27-scala_2.11-alpine
     command:
     - jobmanager
   flink-worker:
     container_name: flink-worker
     hostname: flink-worker
-    domainname: pnda
     image: flink:1.6.0-hadoop27-scala_2.11-alpine
     depends_on:
     - flink-master
@@ -55,7 +50,6 @@ services:
   jupyter-new:
     container_name: jupyter-new
     hostname: jupyter-new
-    domainname: pnda
     image: gradiant/jupyter:5.7.0-pnda
     build:
       context: ./dockerfiles/jupyter-new
@@ -68,7 +62,6 @@ services:
   jupyter:
     container_name: jupyter
     hostname: jupyter
-    domainname: pnda
     image: pnda/jupyter:4.4.0
     build:
       context: ./dockerfiles/jupyter
@@ -91,7 +84,6 @@ services:
   grafana:
     container_name: grafana
     hostname: grafana
-    domainname: pnda
     image: grafana/grafana:5.0.3
     environment:
     - GF_SECURITY_ADMIN_USER=pnda
@@ -103,7 +95,6 @@ services:
   deployment-manager:
     container_name: deployment-manager
     hostname: deployment-manager
-    domainname: pnda
     image: pnda/deployment-manager:1.0.0
     build:
       context: ./dockerfiles/platform-deployment-manager
@@ -114,7 +105,7 @@ services:
     - DATA_LOGGER_URL=http://console-backend:3001 #data-logger uses the data-manager network stack
     - PACKAGE_REPOSITORY_URL=http://package-repository:8888
     - HADOOP_DISTRO=env
-    - HDFS_ROOT_URI=hdfs://hdfs-namenode
+    - HDFS_ROOT_URI=hdfs://hdfs-namenode:8020
     - SPARK_MASTER=spark://spark-master:7077
     - YARN_NODE_MANAGERS=localhost
     - ZOOKEEPER_QUORUM=zookeeper
@@ -124,7 +115,6 @@ services:
   kafka-manager:
     container_name: kafka-manager
     hostname: kafka-manager
-    domainname: pnda
     image: gradiant/kafka-manager:1.3.3.17
     environment:
     - ZK_HOSTS=zookeeper:2181
@@ -134,7 +124,6 @@ services:
   package-repository:
     container_name: package-repository
     hostname: package-repository
-    domainname: pnda
     image: pnda/package-repository:0.3.2
     build:
       context: ./dockerfiles/platform-package-repository
@@ -148,7 +137,6 @@ services:
   hdfs-namenode:
     container_name: hdfs-namenode
     hostname: hdfs-namenode
-    domainname: pnda
     image: gradiant/hdfs-namenode:2.7.7
     environment:
     - CLUSTER_NAME=hdfs-pnda
@@ -161,7 +149,6 @@ services:
   hdfs-datanode:
     container_name: hdfs-datanode
     hostname: hdfs-datanode
-    domainname: pnda
     image: gradiant/hdfs-datanode:2.7.7
     environment:
     - CORE_CONF_fs_defaultFS=hdfs://hdfs-namenode:8020
@@ -175,7 +162,6 @@ services:
   hbase-master:
     container_name: hbase-master
     hostname: hbase-master
-    domainname: pnda
     image: gradiant/hbase-master:2.0.1
     environment:
       HBASE_CONF_hbase_rootdir: hdfs://hdfs-namenode:8020/hbase
@@ -206,7 +192,6 @@ services:
   opentsdb:
     container_name: opentsdb
     hostname: opentsdb
-    domainname: pnda
     image: gradiant/opentsdb:2.3.1
     environment:
     - ZKQUORUM=zookeeper:2181
@@ -218,7 +203,6 @@ services:
   kafka:
     container_name: kafka
     hostname: kafka
-    domainname: pnda
     image: confluentinc/cp-kafka:4.0.0
     environment:
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -236,7 +220,6 @@ services:
   zookeeper:
     container_name: zookeeper
     hostname: zookeeper
-    domainname: pnda
     image: zookeeper:3.4
     volumes:
     - zk-data:/data
@@ -244,7 +227,6 @@ services:
   platform-testing:
     container_name: platform-testing
     hostname: platform-testing
-    domainname: pnda
     image: pnda/platform-testing:0.5.0
     build:
       context: ./dockerfiles/platform-testing
@@ -281,7 +263,6 @@ services:
   console-backend:
     container_name: console-backend
     hostname: console-backend
-    domainname: pnda
     image: pnda/console-backend-data-manager:1.0.0
     build:
       context: ./dockerfiles/platform-console-backend
@@ -290,8 +271,8 @@ services:
       target: console-backend-data-manager
     environment:
     - CONSOLE_FRONTEND_HOSTS_CSV=console-frontend.pnda
-    - DATASET_MANAGER_URL=http://data-service.pnda:7000
-    - DEPLOYMENT_MANAGER_URL=http://deployment-manager.pnda:5000
+    - DATASET_MANAGER_URL=http://data-service:7000
+    - DEPLOYMENT_MANAGER_URL=http://deployment-manager:5000
   console-backend-data-logger:
     container_name: console-backend-data-logger
     network_mode: service:console-backend
@@ -308,7 +289,6 @@ services:
   data-service:
     container_name: data-service
     hostname: data-service
-    domainname: pnda
     image: pnda/data-service:0.2.2
     build:
       context: ./dockerfiles/platform-data-mgmnt

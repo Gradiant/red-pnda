@@ -66,7 +66,7 @@ init-hdfs:
 	docker cp hdfs/kite-files/pnda.avsc hdfs-namenode:/tmp/pnda.avsc
 	docker cp hdfs/kite-files/pnda_kite_partition.json hdfs-namenode:/tmp/pnda_kite_partition.json
 	docker cp hdfs/add_kite_tools_and_create_db.sh hdfs-namenode:/tmp/add_kite_tools_and_create_db.sh
-	#docker exec -ti hdfs-namenode /bin/bash -c /tmp/add_kite_tools_and_create_db.sh
+	docker exec -ti hdfs-namenode /bin/bash -c /tmp/add_kite_tools_and_create_db.sh
 
 create-dm-keys:
 	echo "----------------  ADDING ssh keys to dm_keys volume   ----------------"
@@ -97,20 +97,20 @@ distribute-dm-keys:
 	#docker exec deployment-manager-ssh chown -R root:root /root/.ssh
 
 deploy: deploy-hdfs deploy-hbase init-hdfs init-hbase-opentsdb deploy-kafka deploy-spark deploy-jupyter deploy-grafana deploy-pnda create-dm-keys distribute-dm-keys
+	docker-compose up -d opentsdb
 	./docker_local_resolution.sh enable
 
 start:
 	docker-compose up -d
 	$(call enable_thrift)
-	./docker_local_resolution.sh disable
-	./docker_local_resolution.sh enable
+	./docker_local_resolution.sh -y enable
 stop:
 	docker-compose down
-	./docker_local_resolution.sh disable
+	./docker_local_resolution.sh -y disable
 
 clean:
 	docker-compose down -v
-	./docker_local_resolution.sh disable
+	./docker_local_resolution.sh -y disable
 	rm -rf dm_keys
 
 ui:
