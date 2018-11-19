@@ -8,6 +8,7 @@ services:
       context: ./dockerfiles/platform-gobblin-modules
       args:
         version: 0.1.0
+    entrypoint: ["/bin/sh","-c","while true; do sleep 1000; done"]
     environment:
     - HDFS_URL=hdfs://hdfs-namenode:8020
     - MASTER_DATASET_DIRECTORY=/user/pnda/PNDA_datasets/datasets
@@ -47,14 +48,14 @@ services:
     - taskmanager
     environment:
     - JOB_MANAGER_RPC_ADDRESS=flink-master
-  jupyter-new:
-    container_name: jupyter-new
-    hostname: jupyter-new
+  jupyter-grd:
+    container_name: jupyter-grd
+    hostname: jupyter-grd
     image: gradiant/jupyter:5.7.0-pnda
     build:
-      context: ./dockerfiles/jupyter-new
+      context: ./dockerfiles/jupyter-grd
     volumes:
-    - jupyter-new:/notebooks
+    - jupyter-grd:/notebooks
     environment:
     - SPARK_MASTER_URL=spark://spark-master:7077
     - HADOOP_DISTRO=env
@@ -203,13 +204,14 @@ services:
   kafka:
     container_name: kafka
     hostname: kafka
+    domainname: pnda
     image: confluentinc/cp-kafka:4.0.0
     environment:
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
     - KAFKA_INTER_BROKER_LISTENER_NAME=REPLICATION
     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INGEST:PLAINTEXT,REPLICATION:PLAINTEXT,INTERNAL_PLAINTEXT:PLAINTEXT
-    - KAFKA_LISTENERS=INGEST://kafka:9094,REPLICATION://kafka:9093,INTERNAL_PLAINTEXT://kafka:9092
-    - KAFKA_ADVERTISED_LISTENERS=INGEST://kafka:9094,REPLICATION://kafka:9093,INTERNAL_PLAINTEXT://kafka:9092
+    - KAFKA_LISTENERS=INGEST://kafka.pnda:9094,REPLICATION://kafka:9093,INTERNAL_PLAINTEXT://kafka:9092
+    - KAFKA_ADVERTISED_LISTENERS=INGEST://kafka.pnda:9094,REPLICATION://kafka:9093,INTERNAL_PLAINTEXT://kafka:9092
     - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     - JMX_PORT=9050
     ports:
@@ -307,7 +309,7 @@ services:
     - hdfs-namenode
 
 volumes:
-   jupyter-new:
+   jupyter-grd:
    jupyter-home:
    dm_keys:
    package-repository:

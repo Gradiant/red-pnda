@@ -33,12 +33,6 @@ deploy-kafka:
 	--post-data='name=PNDA&zkHosts=zookeeper%3A2181&kafkaVersion=1.0.0&jmxEnabled=true&jmxUser=&jmxPass=&activeOffsetCacheEnabled=true&securityProtocol=PLAINTEXT' \
 	http://localhost:10900/clusters -q -O/dev/null
 
-deploy-spark:
-	docker-compose up -d spark-master spark-worker
-
-deploy-grafana:
-	docker-compose up -d grafana
-
 deploy-jupyter:
 	docker-compose up -d jupyter jupyter-ssh
 	docker exec jupyter-ssh sh -c 'adduser -D pnda && echo "pnda:pnda" | chpasswd'
@@ -62,6 +56,8 @@ init-hdfs:
 	docker exec -ti hdfs-namenode hdfs dfs -mkdir -p /user/$(PNDA_USER)
 	docker exec -ti hdfs-namenode hdfs dfs -chown $(PNDA_USER):$(PNDA_GROUP) /user/$(PNDA_USER)
 	docker exec -ti hdfs-namenode hdfs dfs -chmod 770 /user/$(PNDA_USER)
+	docker exec -ti hdfs-namenode apk add --no-cache sudo
+	docker exec -ti hdfs-namenode sudo -E -u pnda hdfs dfs -mkdir -p /user/pnda/PNDA_datasets/quarantine
 	echo "----------------  ADDING KITE_TOOLS to HDFS NAMENODE AND INITIALIZE PNDA REPOs  ----------------"
 	docker cp hdfs/kite-files/pnda.avsc hdfs-namenode:/tmp/pnda.avsc
 	docker cp hdfs/kite-files/pnda_kite_partition.json hdfs-namenode:/tmp/pnda_kite_partition.json
@@ -96,8 +92,12 @@ distribute-dm-keys:
 	#docker exec deployment-manager-ssh chmod 644 /root/.ssh/authorized_keys
 	#docker exec deployment-manager-ssh chown -R root:root /root/.ssh
 
-deploy: deploy-hdfs deploy-hbase init-hdfs init-hbase-opentsdb deploy-kafka deploy-spark deploy-jupyter deploy-grafana deploy-pnda create-dm-keys distribute-dm-keys
+deploy: deploy-hdfs deploy-hbase init-hdfs init-hbase-opentsdb deploy-kafka deploy-jupyter deploy-pnda create-dm-keys distribute-dm-keys
 	docker-compose up -d opentsdb
+	docker-compose up -d spark-master spark-worker
+	docker-compose up -d grafana
+	# FIXME deployment-manager does not start for the first time due to a thrift timeout with hdfs-namenode. restarting.
+	docker-compose up -d deployment-manager
 	./docker_local_resolution.sh enable
 
 start:
