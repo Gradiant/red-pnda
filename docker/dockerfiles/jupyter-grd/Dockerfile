@@ -1,4 +1,4 @@
-FROM gradiant/jupyter:5.7.0-spark
+FROM gradiant/jupyter:5.7.0-spark2.3.0
 
 LABEL maintainer="cgiraldo@gradiant.org"
 LABEL organization="gradiant.org"

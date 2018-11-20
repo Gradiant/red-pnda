@@ -10,7 +10,7 @@ job.name=PullFromKafka
 job.group=PNDA
 job.description=Pulls data from all kafka topics to HDFS
 
-#mr.job.max.mappers={{ MAX_MAPPERS | default('4') }}
+mr.job.max.mappers={{ MAX_MAPPERS | default('1') }}
 
 #Java Null pointer error if job.lock.enabled
 job.lock.enabled=false

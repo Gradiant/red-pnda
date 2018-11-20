@@ -8,12 +8,11 @@ services:
       context: ./dockerfiles/platform-gobblin-modules
       args:
         version: 0.1.0
-    entrypoint: ["/bin/sh","-c","while true; do sleep 1000; done"]
     environment:
     - HDFS_URL=hdfs://hdfs-namenode:8020
     - MASTER_DATASET_DIRECTORY=/user/pnda/PNDA_datasets/datasets
     - MASTER_DATASET_QUARANTINE_DIRECTORY=/user/pnda/PNDA_datasets/quarantine
-    - MAX_MAPPERS=4
+    - MAX_MAPPERS=1
     - KAFKA_BROKERS=kafka:9092
   spark-master:
     container_name: spark-master
